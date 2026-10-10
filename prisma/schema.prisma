@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Plaque {
+  id              String        @id @default(cuid())
+  code            String        @unique // Ex: PLQ-9823 ou X7K9A
+  title           String?       // Nome da Empresa / Estabelecimento
+  googleReviewUrl String?       // Link direto para avaliação do Google
+  placeName       String?       // Subtítulo ou categoria (ex: "Restaurante e Pizzaria")
+  status          String        @default("VIRGIN") // "VIRGIN" (sem dono), "ACTIVE" (ativo), "PAUSED" (pausado)
+  feedbackGate    Boolean       @default(false) // Se ativo, mostra filtro de 5 estrelas
+  clientPhone     String?       // WhatsApp de contato do cliente
+  clientEmail     String?       // E-mail do cliente
+  notes           String?       // Observações internas
+  batchTag        String?       // Tag do lote de fabricação (ex: "LOTE-SET-2026")
+  totalScans      Int           @default(0)
+  lastScannedAt   DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  scans           ScanLog[]
+  feedbacks       FeedbackLog[]
+}
+
+model ScanLog {
+  id        String   @id @default(cuid())
+  plaqueId  String
+  plaque    Plaque   @relation(fields: [plaqueId], references: [id], onDelete: Cascade)
+  userAgent String?
+  referrer  String?
+  createdAt DateTime @default(now())
+}
+
+model FeedbackLog {
+  id           String   @id @default(cuid())
+  plaqueId     String
+  plaque       Plaque   @relation(fields: [plaqueId], references: [id], onDelete: Cascade)
+  rating       Int      // 1 a 5 estrelas
+  comment      String?  // Feedback escrito para notas baixas
+  contactName  String?  // Nome do cliente caso queira ser contatado
+  contactPhone String?  // Telefone do cliente
+  createdAt    DateTime @default(now())
+}
+
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
