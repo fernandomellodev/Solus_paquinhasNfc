@@ -79,7 +79,7 @@ export interface ServiceOffer {
   createdAt: string;
 }
 
-const dbDir = path.join(process.cwd(), 'data');
+const dbDir = process.env.VERCEL ? '/tmp' : path.join(process.cwd(), 'data');
 if (!fs.existsSync(dbDir)) {
   fs.mkdirSync(dbDir, { recursive: true });
 }
